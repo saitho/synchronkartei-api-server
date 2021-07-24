@@ -1,7 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 
-const cacheLifetime = 60*60*24; // 24h
+const cacheLifetime = Math.min(24, process.env.CACHE_TIME_HOURS || 24) * 60 * 60; // min. 24h
 
 class Cache {
   constructor (cacheName) {

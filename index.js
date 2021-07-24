@@ -23,18 +23,21 @@ app.get('/serie/:id', async (req, res) => {
     seriesCache.write(seriesId, details);
   }
 
-  res.json({
+  const response = {
     response: {
       fromCache: fromCache
-    },
-    serie: {
+    }
+  };
+
+  if (details) {
+    response.serie = {
       id: details.id,
-      name: details.title,
-      details: {
+        name: details.title,
+        details: {
         studio: details.studio,
-        writers: details.writers,
-        directors: details.directors,
-        actors: details.actors.map((d) => {
+          writers: details.writers,
+          directors: details.directors,
+          actors: details.actors.map((d) => {
           return {
             actor_name: d['Sprecher'],
             original_actor_name: d['Darsteller'].replace(/^\((.*)\)$/, '$1'),
@@ -43,7 +46,15 @@ app.get('/serie/:id', async (req, res) => {
         })
       }
     }
-  })
+  } else {
+    response.error = {
+      error: true,
+      message: 'Unable to get data from Synchronkartei.'
+    }
+    res.status(500);
+  }
+
+  res.json(response);
 })
 
 app.listen(port, () => {
