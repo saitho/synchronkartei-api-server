@@ -20,7 +20,9 @@ app.get('/serie/:id', async (req, res) => {
     fromCache = true;
   } else {
     details = await client.getSeriesDetails(seriesId);
-    seriesCache.write(seriesId, details);
+    if (details) {
+      seriesCache.write(seriesId, details);
+    }
   }
 
   const response = {

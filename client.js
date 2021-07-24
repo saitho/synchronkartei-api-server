@@ -10,7 +10,7 @@ function grabSeriesHtml(seriesId) {
       }
     }, function (error, response, body) {
       if (error) {
-        reject();
+        reject(error);
         return;
       }
       resolve(body);
@@ -18,39 +18,43 @@ function grabSeriesHtml(seriesId) {
   });
 }
 
-async function getSeriesDetails(seriesId) {
-  const htmlCode = await grabSeriesHtml(seriesId)
+function getSeriesDetails(seriesId) {
+  return new Promise((resolve, reject) => {
+    grabSeriesHtml(seriesId)
+      .then((htmlCode) => {
+        const HTMLParser = require('node-html-parser');
+        const root = HTMLParser.parse(htmlCode, {
+          lowerCaseTagName: false,
+          comment: false,
+          blockTextElements: {
+            script: false,
+            noscript: false,
+            style: false,
+            pre: false
+          }
+        });
 
-  const HTMLParser = require('node-html-parser');
-  const root = HTMLParser.parse(htmlCode, {
-    lowerCaseTagName: false,
-    comment: false,
-    blockTextElements: {
-      script: false,
-      noscript: false,
-      style: false,
-      pre: false
-    }
+        const table = root.querySelector('#seriendetail table');
+        if (!table) {
+          return;
+        }
+
+        const details = root.querySelectorAll('#seriendetail div');
+        const detailTexts = details.map((e) => {
+          return e.rawText;
+        });
+
+        resolve({
+          id: seriesId,
+          title: root.querySelector('#seriendetail h3').rawText.trim(),
+          studio: extractTextDetail(detailTexts, 'Synchronfirma', false),
+          writers: extractTextDetail(detailTexts, 'Dialogbuch', true, ','),
+          directors: extractTextDetail(detailTexts, 'Dialogregie', true, ','),
+          actors: mapTableObjectsToArray(table)
+        })
+      })
+      .catch(reject);
   });
-
-  const table = root.querySelector('#seriendetail table');
-  if (!table) {
-    return;
-  }
-
-  const details = root.querySelectorAll('#seriendetail div');
-  const detailTexts = details.map((e) => {
-    return e.rawText;
-  });
-
-  return {
-    id: seriesId,
-    title: root.querySelector('#seriendetail h3').rawText.trim(),
-    studio: extractTextDetail(detailTexts, 'Synchronfirma', false),
-    writers: extractTextDetail(detailTexts, 'Dialogbuch', true, ','),
-    directors: extractTextDetail(detailTexts, 'Dialogregie', true, ','),
-    actors: mapTableObjectsToArray(table)
-  }
 }
 
 function extractTextDetail(textArray, label, multiValue = false, splitChar = null) {
