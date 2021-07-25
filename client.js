@@ -1,10 +1,10 @@
 const he = require('he');
 
-function grabSeriesHtml(seriesId) {
+function grabHtml(id, type) {
   return new Promise((resolve, reject) => {
     const request = require('request');
     request({
-      url: 'https://synchronkartei.de/serie/' + seriesId,
+      url: 'https://synchronkartei.de/' + type + '/' + id,
       headers: {
         'User-Agent': 'Synchronkartei-API-Server (github.com/saitho/synchronkartei-api-server)'
       }
@@ -20,7 +20,7 @@ function grabSeriesHtml(seriesId) {
 
 function getSeriesDetails(seriesId) {
   return new Promise((resolve, reject) => {
-    grabSeriesHtml(seriesId)
+    grabHtml(seriesId, 'serie')
       .then((htmlCode) => {
         const HTMLParser = require('node-html-parser');
         const root = HTMLParser.parse(htmlCode, {
@@ -47,6 +47,45 @@ function getSeriesDetails(seriesId) {
         resolve({
           id: seriesId,
           title: root.querySelector('#seriendetail h3').rawText.trim(),
+          studio: extractTextDetail(detailTexts, 'Synchronfirma', false),
+          writers: extractTextDetail(detailTexts, 'Dialogbuch', true, ','),
+          directors: extractTextDetail(detailTexts, 'Dialogregie', true, ','),
+          actors: mapTableObjectsToArray(table)
+        })
+      })
+      .catch(reject);
+  });
+}
+
+function getMovieDetails(movieId) {
+  return new Promise((resolve, reject) => {
+    grabHtml(movieId, 'film')
+      .then((htmlCode) => {
+        const HTMLParser = require('node-html-parser');
+        const root = HTMLParser.parse(htmlCode, {
+          lowerCaseTagName: false,
+          comment: false,
+          blockTextElements: {
+            script: false,
+            noscript: false,
+            style: false,
+            pre: false
+          }
+        });
+
+        const table = root.querySelector('#filmdetail table');
+        if (!table) {
+          return;
+        }
+
+        const details = root.querySelectorAll('#filmdetail div');
+        const detailTexts = details.map((e) => {
+          return e.rawText;
+        });
+
+        resolve({
+          id: movieId,
+          title: root.querySelector('#filmdetail h3').rawText.trim(),
           studio: extractTextDetail(detailTexts, 'Synchronfirma', false),
           writers: extractTextDetail(detailTexts, 'Dialogbuch', true, ','),
           directors: extractTextDetail(detailTexts, 'Dialogregie', true, ','),
@@ -105,5 +144,6 @@ function mapTableObjectsToArray(element) {
 }
 
 module.exports = {
-  getSeriesDetails
+  getSeriesDetails,
+  getMovieDetails
 }

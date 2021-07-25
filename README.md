@@ -223,3 +223,43 @@ Response:
    }
 }
 ```
+
+### `/film/:id` – Movie information
+
+**Example:**
+
+API URL: https://localhost:3000/film/38462
+
+Response:
+```json
+{
+  "response": {
+    "fromCache": false
+  },
+  "film": {
+    "id": "38462",
+    "name": "Otto - Der Film",
+    "details": {
+      "studio": "",
+      "writers": [
+
+      ],
+      "directors": [
+
+      ],
+      "actors": [
+        {
+          "actor_name": "Otto Waalkes",
+          "original_actor_name": "Wolfgang Kleff",
+          "role_name": "Friseur Herr Astrid"
+        },
+        {
+          "actor_name": "Otto Waalkes",
+          "original_actor_name": "Günther Kaufmann",
+          "role_name": "US-Soldat (1. Szene)"
+        }
+      ]
+    }
+  }
+}
+```
