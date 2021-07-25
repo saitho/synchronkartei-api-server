@@ -11,7 +11,7 @@ app.get('/', (req, res) => {
 
 function mapDetails(details) {
   return {
-    id: details.id,
+    id: parseInt(details.id),
     name: details.title,
     details: {
       studio: details.studio,
@@ -19,9 +19,15 @@ function mapDetails(details) {
       directors: details.directors,
       actors: details.actors.map((d) => {
         return {
-          actor_name: d['Sprecher'],
-          original_actor_name: d['Darsteller'].replace(/^\((.*)\)$/, '$1'),
-          role_name: d['Rolle']
+          actor: {
+            id: parseInt(d['Sprecher'].link.replace(/^\/sprecher\/(\d+)\/.*$/, '$1')),
+            name: d['Sprecher'].text
+          },
+          original_actor: {
+            id: parseInt(d['Darsteller'].link.replace(/^\/darsteller\/(\d+)\/.*$/, '$1')),
+            name: d['Darsteller'].text.replace(/^\((.*)\)$/, '$1')
+          },
+          role_name: d['Rolle'].text
         }
       })
     }

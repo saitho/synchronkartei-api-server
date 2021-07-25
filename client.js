@@ -138,7 +138,15 @@ function mapTableObjectsToArray(element) {
     const rowColumns = bodyRow.querySelectorAll('td');
     const dataObj = {};
     for (const i in rowColumns) {
-      dataObj[thead[i]] = rowColumns[i].rawText.trim();
+      const node = rowColumns[i];
+      let link = '';
+      if (node.querySelector('a')) {
+        link = node.querySelector('a').getAttribute('href')
+      }
+      dataObj[thead[i]] = {
+        link: link,
+        text: node.rawText.trim()
+      };
     }
     tableData.push(dataObj);
   }
