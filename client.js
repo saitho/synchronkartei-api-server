@@ -13,6 +13,9 @@ function grabHtml(id, type) {
         reject(error);
         return;
       }
+      if (!body.length) {
+        reject('404 Not Found');
+      }
       resolve(body);
     });
   });

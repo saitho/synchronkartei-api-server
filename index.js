@@ -73,7 +73,8 @@ app.get('/film/:id', async (req, res) => {
     details = filmCache.read(filmId);
     fromCache = true;
   } else {
-    details = await client.getMovieDetails(filmId);
+    details = await client.getMovieDetails(filmId)
+      .catch((error) => console.error(error));
     if (details) {
       filmCache.write(filmId, details);
     }
