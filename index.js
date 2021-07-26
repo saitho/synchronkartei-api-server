@@ -20,11 +20,11 @@ function mapDetails(details) {
       actors: details.actors.map((d) => {
         return {
           actor: {
-            id: parseInt(d['Sprecher'].link.replace(/^\/sprecher\/(\d+)\/.*$/, '$1')),
+            id: parseInt(d['Sprecher'].link.replace(/^\/sprecher\/(\d+)(\/.*)?$/, '$1')),
             name: d['Sprecher'].text
           },
           original_actor: {
-            id: parseInt(d['Darsteller'].link.replace(/^\/darsteller\/(\d+)\/.*$/, '$1')),
+            id: parseInt(d['Darsteller'].link.replace(/^\/darsteller\/(\d+)(\/.*)?$/, '$1')),
             name: d['Darsteller'].text.replace(/^\((.*)\)$/, '$1')
           },
           role_name: d['Rolle'].text
